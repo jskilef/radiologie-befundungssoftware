@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "endpoint": "https://api.openai.com/v1/chat/completions",
+  "apiKey": "",
+  "model": "",
+  "language": "Same as original",
+  "templates": [
+    {"name":"General radiology","body":"Clinical indication:\n\nTechnique:\n\nComparison:\n\nFindings:\n\nImpression:\n","instructions":"Use concise radiology prose. Preserve clinical facts and original headings."},
+    {"name":"Befund / Beurteilung","body":"Indikation:\n\nTechnik:\n\nVergleich:\n\nBefund:\n\nBeurteilung:\n","instructions":"Use concise German radiology prose."}
+  ]
+}
