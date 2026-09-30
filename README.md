@@ -28,13 +28,13 @@ The optional launcher serves the same app and forwards requests from Node, remov
 
 Review produces issue notes without changing the draft. Revise generates an editable report and notes. Both use the original text and selected template. Compare results with the original and resolve flagged issues before copying or downloading.
 
-Create or edit templates in the configuration panel, click Update template, then Save settings file. Update before switching templates to keep pending edits. The bundled JSON contains no key or model. Real settings contain a plain-text key and must stay private; do not commit credentials or patient text to GitHub.
+Create or edit templates in the configuration panel, click Update template, then Save settings file. Update before switching templates to keep pending edits. The bundled JSON contains no key or model. Settings exports are password-encrypted; keep them private and do not commit credentials or patient text to GitHub. The bundled blank example is a legacy plaintext file with no credentials.
 
 The interface is local; cloud processing is not. Report text and selected template go to your configured endpoint, directly or through the local launcher. Use de-identified text and an institution-approved service. AI results require clinical review. No browser storage or automatic saving is used; closing or reloading clears unsaved work.
 
 ## Verification
 
-Run `node verify.cjs` and `node verify-server.cjs`. These use mocked providers to check API formats, separate actions, language/settings persistence, old settings, and launcher access controls. Live provider access is unverified without your credential.
+Run `node verify.cjs`, `node verify-server.cjs`, and `node verify-encryption.cjs`. These use mocked providers to check API formats, separate actions, language/settings persistence, old settings, and launcher access controls. Live provider access is unverified without your credential.
 
 API references: [OpenAI](https://developers.openai.com/api/reference/overview), [Gemini](https://ai.google.dev/api/generate-content).
 
@@ -43,3 +43,11 @@ Temporary HTTP 500, 503 and 504 responses are retried at most twice with increas
 ## Advanced prompts
 
 Configure API & templates contains an Advanced settings toggle. Prompt fields remain hidden until enabled. Review and Revise have independent, editable task instructions. The app adds the JSON response contract and review-note language automatically; templates and original report remain separate input data. Edits apply to the next action. Save settings stores both instructions under `prompts.review` and `prompts.revise`. Older settings without prompts use the defaults. Each prompt must be non-empty and at most 20,000 characters. Reset buttons restore individual defaults. Loading settings hides the advanced panel again.
+
+## Password-encrypted settings
+
+Save settings file asks for a password (at least 12 characters) and confirmation, then downloads report-studio-settings.encrypted.json. The entire settings payload, including key, templates, prompts, model and language, is encrypted locally with AES-256-GCM. PBKDF2-SHA256 with 600,000 iterations and a fresh random 16-byte salt derives the key; each export uses a fresh random 12-byte IV. The JSON envelope contains only format/algorithm metadata, salt, IV and authenticated ciphertext.
+
+Loading an encrypted file asks for its password. Wrong passwords and corrupted files leave the current settings untouched. Passwords are not saved or sent to the launcher or provider. After unlocking, the settings and API key remain in tab memory to run requests; closing/reloading clears them. Encryption protects the saved file, not an unlocked browser session. There is no password recovery; keep a secure copy of your password. Use a current browser with Web Crypto support (or the localhost launcher).
+
+Legacy plaintext settings can be imported for migration. Save them to create an encrypted copy, verify that it unlocks, and remove or securely manage the old plaintext copy yourself. The app does not delete existing files. New exports are always encrypted. No password or real credential is bundled in the repository.
