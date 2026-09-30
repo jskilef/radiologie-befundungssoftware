@@ -1,17 +1,41 @@
 # Report Studio
 
-Open `report-studio.html` by dragging it into Chrome, Edge, or Firefox. No installation, build step, or server is needed for the interface.
+Drag `report-studio.html` into a browser. Connection & templates starts closed; click Configure API & templates to edit it.
 
-1. Load `report-studio-settings.json`, or expand **Connection & templates**.
-2. Enter your own API key and a model ID available from your provider. The default endpoint is OpenAI's Chat Completions endpoint; another provider must support the same request/response format and browser CORS access from a local file. A local model server can use an HTTP localhost endpoint and leave the key blank. APIs with different formats are not supported.
-3. Type or paste a de-identified report. Choose a template if wanted, then click **Review & revise**.
-4. Compare the editable AI revision with the original and check the review notes. Copy or download the revision only after clinical review.
-5. Create or edit templates, click **Update template**, then **Save settings file**. This downloads a new JSON file containing the key, endpoint, model, language and all templates. Replace your old settings file with the download if desired. Browsers do not silently overwrite an arbitrary loaded file. Template selection does not automatically save pending edits; update before switching.
+Choose English or Deutsch beside the settings buttons. Save settings file stores `uiLanguage`, `provider`, key, endpoint, model, report language and templates in one JSON file. Interface language and report language are independent. Older version 1 files still load with English as the default. Downloads do not silently overwrite the loaded file.
 
-The supplied JSON has an empty key and model: no credentials are bundled. Use your own provider credential. The settings file is plain text and must be kept private. The app does not store reports or credentials in browser storage. Reports stay in tab memory except when you explicitly submit a review, copy text or download a report. Closing or reloading clears unsaved work.
+## Providers
 
-The interface is local, but cloud AI processing is not. Report text and selected template content go directly to the endpoint you configure when reviewing. Use only de-identified text and an institution-approved endpoint. The model is instructed to preserve clinical facts and flag contradictions instead of silently resolving them, but its output remains an unvalidated draft and can contain errors or miss issues.
+- OpenAI: use your own key, an available model ID, and https://api.openai.com/v1/chat/completions.
+- Google Gemini: select Gemini and enter your Gemini key and model ID. Use https://generativelanguage.googleapis.com/v1beta/models as the endpoint. The app adds the model and :generateContent, uses x-goog-api-key authentication, and reads native Gemini responses.
+- Other OpenAI-compatible API: enter the full Chat Completions URL and model ID. Compatible gateways and local servers are supported. The key can be blank when authentication is unnecessary. Native proprietary formats such as Anthropic Messages and Azure-specific authentication need a compatible gateway; there are no native adapters for them.
 
-If a request fails with a connection/CORS error, the provider may not permit requests from `file://`. This cannot be bypassed by HTML. Configure an approved compatible local service or gateway to allow the local-file origin. Do not disable browser security. Live provider access requires your credential and has not been verified with the placeholder settings.
+Changing provider applies its default endpoint; enter the matching key and model. Test connection makes a small billable generation request without sending your report.
 
-API implementation reference: https://developers.openai.com/api/reference/overview
+## Fixing connection failures
+
+A browser network error may mean CORS, connectivity, extensions or other browser restrictions. HTML cannot override provider CORS. Do not disable browser security.
+
+If direct browser access fails:
+
+1. With Node.js 18 or newer available, run `node local-server.cjs` in this folder.
+2. Open the http://127.0.0.1 URL printed in the terminal. Keep the terminal running.
+3. Load your settings JSON, choose the provider, and test the connection.
+
+The optional launcher serves the same app and forwards requests from Node, removing provider CORS as a constraint. It does not fix invalid credentials, quotas, unavailable models or blocked networks. It binds only to loopback, validates origin and session, does not serve settings files, and does not log or save reports or keys. Use HTTPS endpoints or HTTP on localhost. Stop the launcher with Ctrl+C. The standalone HTML still works without it when the endpoint permits browser requests.
+
+## Reports and templates
+
+Review produces issue notes without changing the draft. Revise generates an editable report and notes. Both use the original text and selected template. Compare results with the original and resolve flagged issues before copying or downloading.
+
+Create or edit templates in the configuration panel, click Update template, then Save settings file. Update before switching templates to keep pending edits. The bundled JSON contains no key or model. Real settings contain a plain-text key and must stay private; do not commit credentials or patient text to GitHub.
+
+The interface is local; cloud processing is not. Report text and selected template go to your configured endpoint, directly or through the local launcher. Use de-identified text and an institution-approved service. AI results require clinical review. No browser storage or automatic saving is used; closing or reloading clears unsaved work.
+
+## Verification
+
+Run `node verify.cjs` and `node verify-server.cjs`. These use mocked providers to check API formats, separate actions, language/settings persistence, old settings, and launcher access controls. Live provider access is unverified without your credential.
+
+API references: [OpenAI](https://developers.openai.com/api/reference/overview), [Gemini](https://ai.google.dev/api/generate-content).
+
+Temporary HTTP 500, 503 and 504 responses are retried at most twice with increasing delays. Cancel stops retries. Retry-After delays over 30 seconds are reported without automatic retry; credentials and quota errors are not retried. No model/provider is changed automatically.

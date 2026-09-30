@@ -1,0 +1,5 @@
+# Credential-bearing settings downloads and report exports
+*settings*.json
+!report-studio-settings.json
+revised-report*.txt
+node_modules/
