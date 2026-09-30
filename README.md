@@ -2,7 +2,7 @@
 
 Drag `report-studio.html` into a browser. Connection & templates starts closed; click Configure API & templates to edit it.
 
-Choose English or Deutsch beside the settings buttons. Save settings file stores `uiLanguage`, `provider`, key, endpoint, model, report language and templates in one JSON file. Interface language and report language are independent. Older version 1 files still load with English as the default. Downloads do not silently overwrite the loaded file.
+Choose English or Deutsch beside the settings buttons. Save settings file stores `uiLanguage`, `provider`, key, endpoint, model, report language and templates in one password-encrypted JSON file. Interface language and report language are independent. Older version 1 files still load with English as the default. Downloads do not silently overwrite the loaded file.
 
 ## Providers
 
@@ -34,7 +34,7 @@ The interface is local; cloud processing is not. Report text and selected templa
 
 ## Verification
 
-Run `node verify.cjs`, `node verify-server.cjs`, and `node verify-encryption.cjs`. These use mocked providers to check API formats, separate actions, language/settings persistence, old settings, and launcher access controls. Live provider access is unverified without your credential.
+Run `node verify.cjs`, `node verify-server.cjs`, `node verify-encryption.cjs`, and `node verify-diagnostics.cjs`. These use mocked providers to check API formats, separate actions, language/settings persistence, old settings, and launcher access controls. Live provider access is unverified without your credential.
 
 API references: [OpenAI](https://developers.openai.com/api/reference/overview), [Gemini](https://ai.google.dev/api/generate-content).
 
@@ -51,3 +51,5 @@ Save settings file asks for a password (at least 12 characters) and confirmation
 Loading an encrypted file asks for its password. Wrong passwords and corrupted files leave the current settings untouched. Passwords are not saved or sent to the launcher or provider. After unlocking, the settings and API key remain in tab memory to run requests; closing/reloading clears them. Encryption protects the saved file, not an unlocked browser session. There is no password recovery; keep a secure copy of your password. Use a current browser with Web Crypto support (or the localhost launcher).
 
 Legacy plaintext settings can be imported for migration. Save them to create an encrypted copy, verify that it unlocks, and remove or securely manage the old plaintext copy yourself. The app does not delete existing files. New exports are always encrypted. No password or real credential is bundled in the repository.
+
+Provider errors display recognised diagnostic codes, including Mistral `1300`, without forwarding arbitrary error messages that could contain credentials or report text. A displayed rate limit does not establish remaining quota or model access.

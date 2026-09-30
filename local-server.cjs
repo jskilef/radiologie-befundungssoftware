@@ -21,7 +21,7 @@ function createServer({upstreamFetch = fetch} = {}) {
     }
     if (req.method !== 'POST' || req.url !== '/api') return reply(404, {error:'Not found'});
     const incomingToken = req.headers['x-local-token'];
-    if (req.headers.origin !== origin || typeof incomingToken !== 'string' || incomingToken.length !== token.length || !timingSafeEqual(Buffer.from(incomingToken), Buffer.from(token))) return reply(403, {error:'Invalid origin or session'});
+    if (req.headers.origin !== origin || typeof incomingToken !== 'string' || Buffer.byteLength(incomingToken) !== Buffer.byteLength(token) || !timingSafeEqual(Buffer.from(incomingToken), Buffer.from(token))) return reply(403, {error:'Invalid origin or session'});
     if (!req.headers['content-type']?.startsWith('application/json')) return reply(415, {error:'JSON required'});
     let size = 0, chunks = [];
     try {
@@ -43,11 +43,14 @@ function createServer({upstreamFetch = fetch} = {}) {
       res.on('close', () => { if (!res.writableEnded) abort.abort(); });
       try {
         const upstream = await upstreamFetch(url.href, {method:'POST', redirect:'error', headers, body:JSON.stringify(input.body), signal:abort.signal});
-        // Never relay provider error bodies: they may echo keys or report text.
+        // Relay only recognised diagnostic codes; error messages may echo keys or report text.
         if (!upstream.ok) {
           const retryAfter = upstream.headers?.get('Retry-After');
           if (retryAfter && /^\d{1,6}$/.test(retryAfter)) res.setHeader('Retry-After', retryAfter);
-          return reply(upstream.status, {error:'Provider rejected request'});
+          const failure = await upstream.json().catch(() => null);
+          const candidate = failure?.code ?? failure?.error?.code;
+          const code = ['tier_not_allowed','rate_limit_exceeded','quota_exceeded','insufficient_quota','model_not_allowed','invalid_api_key','permission_denied','1300'].includes(candidate) ? candidate : undefined;
+          return reply(upstream.status, {error:'Provider rejected request', ...(code ? {code} : {})});
         }
         const data = await upstream.json();
         reply(200, data);
