@@ -39,3 +39,7 @@ Run `node verify.cjs` and `node verify-server.cjs`. These use mocked providers t
 API references: [OpenAI](https://developers.openai.com/api/reference/overview), [Gemini](https://ai.google.dev/api/generate-content).
 
 Temporary HTTP 500, 503 and 504 responses are retried at most twice with increasing delays. Cancel stops retries. Retry-After delays over 30 seconds are reported without automatic retry; credentials and quota errors are not retried. No model/provider is changed automatically.
+
+## Advanced prompts
+
+Configure API & templates contains an Advanced settings toggle. Prompt fields remain hidden until enabled. Review and Revise have independent, editable task instructions. The app adds the JSON response contract and review-note language automatically; templates and original report remain separate input data. Edits apply to the next action. Save settings stores both instructions under `prompts.review` and `prompts.revise`. Older settings without prompts use the defaults. Each prompt must be non-empty and at most 20,000 characters. Reset buttons restore individual defaults. Loading settings hides the advanced panel again.
