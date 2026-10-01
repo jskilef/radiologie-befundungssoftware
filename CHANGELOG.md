@@ -1,5 +1,11 @@
 # Changelog
 
+
+## 1.2.2
+
+- CPU mode uses a classic worker to avoid the module-worker startup path when opening the HTML directly in Brave.
+- CPU loading failures distinguish runtime import, model initialization, and generation without exposing report text.
+
 ## 1.2.1 — 2026-10-01
 
 - Keep worker Blob URLs alive until worker termination instead of revoking them immediately during startup.

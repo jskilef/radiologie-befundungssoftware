@@ -75,3 +75,5 @@ Transformers.js is pinned to 3.8.1. The module worker uses ONNX Runtime WASM, a 
 All inference runs in the browser worker. Runtime/model assets can be cached, but reports are not uploaded to a cloud inference API. Cancel, Unload browser model, or Clear workspace terminates the worker. Selected provider/model are included in encrypted settings. If file-origin module workers are blocked, use the optional localhost launcher; it serves the interface but CPU report generation still happens in the worker. The app does not automatically fall back to cloud providers.
 
 Run node verify-cpu.cjs for mocked CPU-worker/runtime checks. Full model execution on a real browser/work PC remains unverified. Reference: https://huggingface.co/docs/transformers.js/v3.8.1/index
+
+CPU troubleshooting in Brave: version 1.2.2 uses a classic CPU worker for direct HTML opening. If loading still fails, the message identifies runtime import (jsDelivr), model initialization (Hugging Face/RAM), or generation. Try the localhost launcher and SmolLM2-135M. Workplace restrictions can still block downloads. This change has automated worker tests; actual Brave inference has not been verified.
