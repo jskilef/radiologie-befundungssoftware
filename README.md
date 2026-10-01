@@ -1,4 +1,4 @@
-# Report Studio v1.1.0
+# Report Studio v1.2.0
 
 Drag `report-studio.html` into a browser. Connection & templates starts closed; click Configure API & templates to edit it.
 
@@ -56,7 +56,7 @@ Provider errors display recognised diagnostic codes, including Mistral `1300`, w
 
 ## Browser-local WebLLM (v1.1.0)
 
-Choose Browser local · WebLLM (WebGPU) under Configure API & templates, then choose a browser model. Test connection downloads and loads it and runs a small local generation; Review and Revise use it without an API key or cloud inference. WebGPU is required; this option will not work on computers without it. CPU/WASM and local-server model presets are not implemented yet.
+Choose Browser local · WebLLM (WebGPU) under Configure API & templates, then choose a browser model. Test connection downloads and loads it and runs a small local generation; Review and Revise use it without an API key or cloud inference. WebGPU is required; this option will not work on computers without it. CPU/WASM is available separately from v1.2.0; local-server presets remain pending.
 
 Available 4-bit models: Qwen3 0.6B, 1.7B, and 4B. Approximate WebLLM GPU-memory estimates are 1.4, 2.0, and 3.4 GB respectively, with the default 4,096-token context. Prompts, templates, reports, and output share the context. Start with the smallest model. JSON output is constrained, but clinical fidelity and quality remain unverified.
 
@@ -65,3 +65,13 @@ Runtime is pinned to WebLLM 0.2.85 and loaded in a module worker. First use cont
 The selected provider and browser model are saved in the encrypted settings file. Local loading/generation has a 20-minute timeout and can be cancelled. No cloud fallback is automatic. Tests: node verify-webllm.cjs uses mocked workers/runtime; real GPU execution and full model downloads are not verified in this environment.
 
 References: https://webllm.mlc.ai/docs/user/basic_usage.html and https://github.com/mlc-ai/web-llm/blob/main/src/config.ts
+
+## Browser CPU (v1.2.0)
+
+Select Browser local · CPU (WebAssembly), then a CPU model and Test connection. No WebGPU, API key, or external inference server is required. Qwen3 0.6B uses q4 quantization and supports multilingual experimentation; SmolLM2 135M uses q8 and is a tiny, English-focused test option. It is not a substitute for validating German radiology output.
+
+Transformers.js is pinned to 3.8.1. The module worker uses ONNX Runtime WASM, a single thread, and no nested proxy worker, avoiding a requirement for cross-origin isolation. Modern WebAssembly support, enough RAM, and access to jsDelivr/Hugging Face model downloads are still needed. The initial download can be large; CPU inference may take minutes. Inputs over 2,048 tokens are rejected without truncation; output is capped at 1,024 new tokens. Unlike WebLLM, JSON is prompt-guided rather than grammar-constrained, and malformed output is rejected by the existing parser.
+
+All inference runs in the browser worker. Runtime/model assets can be cached, but reports are not uploaded to a cloud inference API. Cancel, Unload browser model, or Clear workspace terminates the worker. Selected provider/model are included in encrypted settings. If file-origin module workers are blocked, use the optional localhost launcher; it serves the interface but CPU report generation still happens in the worker. The app does not automatically fall back to cloud providers.
+
+Run node verify-cpu.cjs for mocked CPU-worker/runtime checks. Full model execution on a real browser/work PC remains unverified. Reference: https://huggingface.co/docs/transformers.js/v3.8.1/index

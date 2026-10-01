@@ -1,0 +1,26 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const html=fs.readFileSync('report-studio.html','utf8');
+const script=html.match(/<script>([\s\S]*?)<\/script>/)[1];
+const elements={};
+function element(){return {value:'',textContent:'',children:[],className:'',replaceChildren(...c){this.children=c},append(...c){this.children.push(...c)},addEventListener(){},focus(){},select(){},click(){},setAttribute(){}}}
+const context={location:{protocol:'file:',hostname:''},document:{getElementById(id){return elements[id]??=element()},createElement:element,createTextNode:s=>s},window:{addEventListener(){}},URL,Blob,AbortController,setTimeout,clearTimeout,console,confirm:()=>true,navigator:{clipboard:{writeText:async()=>{}}},fetch:async()=>({ok:true,json:async()=>({choices:[{finish_reason:'stop',message:{content:JSON.stringify({revised_report:'No effusion.',issues:[{category:'Laterality',detail:'Check side.'}],changes:['Corrected spelling.']})}}]})})};
+vm.createContext(context);vm.runInContext(script,context);
+vm.runInContext(`validate(JSON.parse(${JSON.stringify(fs.readFileSync('report-studio-settings.json','utf8').replace(/^\uFEFF/,''))}))`,context);
+assert.throws(()=>vm.runInContext(`validateURL('http://external.example/v1')`,context));
+assert.throws(()=>vm.runInContext(`parseReview('{"revised_report":"x","issues":["bad"],"changes":[]}')`,context));
+elements.endpoint.value='https://api.openai.com/v1/chat/completions';elements.key.value='mock';elements.model.value='mock-model';elements.source.value='No effusoin.';elements.language.value='Same as original';
+
+(async()=>{
+ elements.provider.value='wasm';elements.cpuModel.value='onnx-community/Qwen3-0.6B-ONNX';elements.endpoint.value='https://api.openai.com/v1/chat/completions';elements.key.value='unused-key';elements.language.value='Same as original';
+ vm.runInContext('syncProvider()',context);assert.equal(elements.cpuOptions.hidden,false);assert.equal(elements.gpuOptions.hidden,true);assert.equal(elements.key.disabled,true);
+ const request=vm.runInContext("buildRequest('wasm','https://api.openai.com/v1/chat/completions','unused-key','onnx-community/Qwen3-0.6B-ONNX','prompt','report')",context);context.cpuRequest=request;assert(!JSON.stringify(request).includes('unused-key'));assert.equal(request.local,'wasm');assert.equal(vm.runInContext('validate(config()).provider',context),'wasm');
+ // No navigator.gpu: CPU execution must not depend on it.
+ let worker,fetches=0;context.fetch=async()=>{fetches++;throw Error('Unexpected cloud call')};context.Worker=class{constructor(){worker=this;}postMessage(data){this.payload=data;}terminate(){this.terminated=true}};
+ const pending=vm.runInContext('sendRequest(cpuRequest)',context);worker.onmessage({data:{type:'result',response:{choices:[{message:{content:'{}'}}]}}});await pending;assert.equal(fetches,0);
+ const contextFailure=vm.runInContext('sendRequest(cpuRequest)',context);worker.onmessage({data:{type:'error',code:'context'}});await assert.rejects(contextFailure,/2,048 tokens/);
+ const abort=new AbortController();context.cpuSignal=abort.signal;const cancelled=vm.runInContext('sendRequest(cpuRequest,cpuSignal)',context);abort.abort();await assert.rejects(cancelled,e=>e.name==='AbortError');assert.equal(worker.terminated,true);
+ elements.cpuModel.value='HuggingFaceTB/SmolLM2-135M-Instruct';elements.cpuModel.onchange();assert.equal(elements.model.value,elements.cpuModel.value);
+ const events=[];let loads=0,calls=0,tokenCount=100;const env={backends:{onnx:{wasm:{}}}};const workerContext={self:{postMessage:event=>events.push(event)},mockImport:async()=>({env,pipeline:async(task,model,options)=>{loads++;assert.equal(options.device,'wasm');assert.equal(options.dtype,model.includes('Qwen3')?'q4':'q8');const generator=async(input,opts)=>{calls++;assert.equal(opts.max_new_tokens,1024);assert.equal(opts.return_full_text,false);return [{generated_text:'{"issues":[],"changes":[]}'}];};generator.dispose=async()=>{};generator.tokenizer=()=>({input_ids:{dims:[1,tokenCount]}});generator.tokenizer.apply_chat_template=(messages,opts)=>{assert.equal(opts.enable_thinking,false);return 'rendered input';};return generator;}})};
+ vm.createContext(workerContext);const source=vm.runInContext('CPU_WORKER_SOURCE',context).replace("import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1')",'mockImport()');vm.runInContext(source,workerContext);await workerContext.self.onmessage({data:{model:request.model,messages:request.messages}});assert.equal(env.backends.onnx.wasm.numThreads,1);assert.equal(env.backends.onnx.wasm.proxy,false);assert.equal(events.at(-1).type,'result');await workerContext.self.onmessage({data:{model:request.model,messages:request.messages}});assert.equal(loads,1);assert.equal(calls,2);tokenCount=2049;await workerContext.self.onmessage({data:{model:request.model,messages:request.messages}});assert.equal(events.at(-1).code,'context');assert.equal(calls,2);
+ console.log('PASS: browser CPU without WebGPU, WASM/q4/q8 settings, local routing, cancellation, model switching, settings persistence, worker reuse, long-input rejection.');
+})().catch(e=>{console.error(e);process.exitCode=1;});

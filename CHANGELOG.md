@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.0 — 2026-10-01
+
+- Add browser CPU provider using Transformers.js 3.8.1 and single-threaded WebAssembly.
+- Offer multilingual Qwen3 0.6B and tiny English-focused SmolLM2 135M models.
+- Save CPU provider/model in encrypted settings, reject oversized input, and support worker cancellation/unloading.
+- Add mocked CPU-worker/runtime tests; real model execution remains unverified.
+
+
 ## 1.1.0 — 2026-10-01
 
 - Add browser-local WebLLM provider with three 4-bit Qwen3 models.
