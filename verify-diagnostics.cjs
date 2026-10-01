@@ -13,6 +13,6 @@ vm.createContext(context);vm.runInContext(html.match(/<script>([\s\S]*?)<\/scrip
  for(const id of ['source','revision','raw','context','rawBox','count'])context.document.getElementById(id);
  elements.source.value='Report';elements.revision.value='Draft';elements.raw.textContent='Private raw response';
  elements.clear.onclick();assert.equal(elements.raw.textContent,'');assert.equal(elements.source.value,'');assert.equal(elements.revision.value,'');
- elements.uiLanguage.value='de';assert.match(vm.runInContext("translate('Review and Revise send your report to the endpoint above. Use de-identified text and an institution-approved service. Saved settings are password-encrypted. AI suggestions require clinical review before use.')",context),/passwortverschlüsselt/);
+ elements.uiLanguage.value='de';assert.match(vm.runInContext("translate('API modes send reports to the configured endpoint. Browser-local modes process reports on this device. Use de-identified text and an institution-approved service. Saved settings are password-encrypted. AI suggestions require clinical review before use.')",context),/passwortverschlüsselt/);
  console.log('PASS: Mistral numeric diagnostics, private error suppression, workspace clearing, translated encryption notice.');
 })().catch(e=>{console.error(e);process.exitCode=1;});
