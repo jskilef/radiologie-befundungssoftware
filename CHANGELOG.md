@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.3 — 2026-10-01
+
+- Add an explicit JSON example to CPU task prompts while retaining custom user instructions.
+- Apply a modest repetition penalty to CPU generation. Malformed output is still rejected.
+- Explain the limitations of SmolLM2-135M when CPU output is unstructured; suggest Qwen3-0.6B. Actual inference quality remains unverified.
+
 
 ## 1.2.2
 
