@@ -1,4 +1,4 @@
-# Report Studio v1.0.1
+# Report Studio v1.1.0
 
 Drag `report-studio.html` into a browser. Connection & templates starts closed; click Configure API & templates to edit it.
 
@@ -53,3 +53,15 @@ Loading an encrypted file asks for its password. Wrong passwords and corrupted f
 Legacy plaintext settings can be imported for migration. Save them to create an encrypted copy, verify that it unlocks, and remove or securely manage the old plaintext copy yourself. The app does not delete existing files. New exports are always encrypted. No password or real credential is bundled in the repository.
 
 Provider errors display recognised diagnostic codes, including Mistral `1300`, without forwarding arbitrary error messages that could contain credentials or report text. A displayed rate limit does not establish remaining quota or model access.
+
+## Browser-local WebLLM (v1.1.0)
+
+Choose Browser local · WebLLM (WebGPU) under Configure API & templates, then choose a browser model. Test connection downloads and loads it and runs a small local generation; Review and Revise use it without an API key or cloud inference. WebGPU is required; this option will not work on computers without it. CPU/WASM and local-server model presets are not implemented yet.
+
+Available 4-bit models: Qwen3 0.6B, 1.7B, and 4B. Approximate WebLLM GPU-memory estimates are 1.4, 2.0, and 3.4 GB respectively, with the default 4,096-token context. Prompts, templates, reports, and output share the context. Start with the smallest model. JSON output is constrained, but clinical fidelity and quality remain unverified.
+
+Runtime is pinned to WebLLM 0.2.85 and loaded in a module worker. First use contacts jsDelivr, GitHub and Hugging Face for runtime/model assets; large downloads may be blocked by workplace policy. Model assets may persist in browser cache; Cancel or Unload releases worker/GPU memory but does not remove cached model files. Clear workspace also terminates the local model worker. Reports are supplied only to the local worker in this mode, not to the app API gateway. Reopen/reload or the localhost launcher may help where file-origin worker restrictions apply, but cannot add missing WebGPU support.
+
+The selected provider and browser model are saved in the encrypted settings file. Local loading/generation has a 20-minute timeout and can be cancelled. No cloud fallback is automatic. Tests: node verify-webllm.cjs uses mocked workers/runtime; real GPU execution and full model downloads are not verified in this environment.
+
+References: https://webllm.mlc.ai/docs/user/basic_usage.html and https://github.com/mlc-ai/web-llm/blob/main/src/config.ts

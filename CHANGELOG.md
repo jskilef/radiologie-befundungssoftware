@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0 — 2026-10-01
+
+- Add browser-local WebLLM provider with three 4-bit Qwen3 models.
+- Show loading progress, support worker cancellation/unloading, and explain missing WebGPU.
+- Save browser provider/model choices in existing encrypted settings. No cloud fallback.
+- Add mocked worker/runtime verification; actual GPU inference remains unverified.
+
+
 ## 1.0.1 — 2026-09-30
 
 - Add an English/German About section with links to the project, releases, and issue reporting.
