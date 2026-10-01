@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.4 — 2026-10-01
+
+- Use q8 for CPU Qwen (published model file approximately 618 MB versus q4 approximately 919 MB).
+- Classify recognized download, memory, unsupported-operator and WASM session failures using fixed messages; never expose raw exception text. Unknown errors remain explicitly unknown.
+- Browser inference compatibility remains unverified.
+
 ## 1.2.3 — 2026-10-01
 
 - Add an explicit JSON example to CPU task prompts while retaining custom user instructions.

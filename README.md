@@ -68,7 +68,7 @@ References: https://webllm.mlc.ai/docs/user/basic_usage.html and https://github.
 
 ## Browser CPU (v1.2.0)
 
-Select Browser local · CPU (WebAssembly), then a CPU model and Test connection. No WebGPU, API key, or external inference server is required. Qwen3 0.6B uses q4 quantization and supports multilingual experimentation; SmolLM2 135M uses q8 and is a tiny, English-focused test option. It is not a substitute for validating German radiology output.
+Select Browser local · CPU (WebAssembly), then a CPU model and Test connection. No WebGPU, API key, or external inference server is required. Qwen3 0.6B uses q8 quantization (approximately 618 MB for model weights) and supports multilingual experimentation; SmolLM2 135M uses q8 and is a tiny, English-focused test option. It is not a substitute for validating German radiology output.
 
 Transformers.js is pinned to 3.8.1. The module worker uses ONNX Runtime WASM, a single thread, and no nested proxy worker, avoiding a requirement for cross-origin isolation. Modern WebAssembly support, enough RAM, and access to jsDelivr/Hugging Face model downloads are still needed. The initial download can be large; CPU inference may take minutes. Inputs over 2,048 tokens are rejected without truncation; output is capped at 1,024 new tokens. Unlike WebLLM, JSON is prompt-guided rather than grammar-constrained, and malformed output is rejected by the existing parser.
 
@@ -76,4 +76,4 @@ All inference runs in the browser worker. Runtime/model assets can be cached, bu
 
 Run node verify-cpu.cjs for mocked CPU-worker/runtime checks. Full model execution on a real browser/work PC remains unverified. Reference: https://huggingface.co/docs/transformers.js/v3.8.1/index
 
-CPU troubleshooting in Brave: version 1.2.2 uses a classic CPU worker for direct HTML opening. If loading still fails, the message identifies runtime import (jsDelivr), model initialization (Hugging Face/RAM), or generation. Try the localhost launcher and SmolLM2-135M. Workplace restrictions can still block downloads. This change has automated worker tests; actual Brave inference has not been verified.
+CPU troubleshooting in Brave: version 1.2.2 uses a classic CPU worker for direct HTML opening. If loading still fails, the message identifies runtime import (jsDelivr), model initialization (Hugging Face/RAM), or generation. Try the localhost launcher. Version 1.2.4 distinguishes recognized download, memory, compatibility and WASM session failures. SmolLM2-135M is only a runtime test option and may fail to produce usable report output. Workplace restrictions can still block downloads. This change has automated worker tests; actual Brave inference has not been verified.
