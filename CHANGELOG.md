@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.1 — 2026-10-01
+
+- Keep worker Blob URLs alive until worker termination instead of revoking them immediately during startup.
+- Release worker URLs on cancellation, failure and unload.
+- Distinguish CPU worker failures from WebGPU failures and explain localhost/worker-policy checks.
+
+
 ## 1.2.0 — 2026-10-01
 
 - Add browser CPU provider using Transformers.js 3.8.1 and single-threaded WebAssembly.

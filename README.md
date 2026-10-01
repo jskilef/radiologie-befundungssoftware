@@ -1,4 +1,4 @@
-# Report Studio v1.2.0
+# Report Studio v1.2.1
 
 Drag `report-studio.html` into a browser. Connection & templates starts closed; click Configure API & templates to edit it.
 
