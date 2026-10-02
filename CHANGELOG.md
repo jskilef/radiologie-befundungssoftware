@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.0 — 2026-10-02
+
+- Add standalone web-app manifest, PNG icons, HTTPS entry page and user-triggered Save as app button with German/English guidance.
+- Serve install assets and the manifest start URL from the existing localhost launcher. Use stable port 8787 (configurable via REPORT_STUDIO_PORT) for saved app shortcuts.
+- Preserve direct HTML use and encrypted settings workflow. No offline cache or native model program is added. Browser installation remains subject to browser support and policy.
+
 ## 1.2.4 — 2026-10-01
 
 - Use q8 for CPU Qwen (published model file approximately 618 MB versus q4 approximately 919 MB).

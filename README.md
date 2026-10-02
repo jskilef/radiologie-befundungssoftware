@@ -77,3 +77,11 @@ All inference runs in the browser worker. Runtime/model assets can be cached, bu
 Run node verify-cpu.cjs for mocked CPU-worker/runtime checks. Full model execution on a real browser/work PC remains unverified. Reference: https://huggingface.co/docs/transformers.js/v3.8.1/index
 
 CPU troubleshooting in Brave: version 1.2.2 uses a classic CPU worker for direct HTML opening. If loading still fails, the message identifies runtime import (jsDelivr), model initialization (Hugging Face/RAM), or generation. Try the localhost launcher. Version 1.2.4 distinguishes recognized download, memory, compatibility and WASM session failures. SmolLM2-135M is only a runtime test option and may fail to produce usable report output. Workplace restrictions can still block downloads. This change has automated worker tests; actual Brave inference has not been verified.
+
+## Save as a browser app (v1.3.0)
+
+Open Report Studio over HTTPS or run the existing `node local-server.cjs` launcher and visit `http://127.0.0.1:8787`. Choose **Save as app**; when the browser provides an installation prompt, the button opens it. Otherwise follow the browser's Install app menu. In Brave/Edge/Chrome the resulting app can open in its own window. Browser policy can restrict installation. Direct file:// opening still works for editing, but cannot use the PWA installation flow.
+
+The launcher now uses stable port 8787 so the saved app can reopen the same address. Keep the launcher running; restart it before reopening the installed localhost app. REPORT_STUDIO_PORT can select another stable port. Existing launcher URLs with random ports must be reopened at the new address. No separate desktop/model program is added.
+
+For HTTPS hosting, deploy `index.html`, `report-studio.html`, `manifest.webmanifest`, and the `icons` directory together. These files are ready for static hosting; this change does not publish a hosted site. API access from static hosting still requires provider CORS support. Installation does not fix browser inference limits. No service worker/offline cache is added, so the app requires its host to be reachable when opened; settings still use the encrypted export/import workflow.

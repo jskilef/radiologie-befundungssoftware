@@ -14,11 +14,13 @@ function createServer({upstreamFetch = fetch} = {}) {
     res.setHeader('Referrer-Policy', 'no-referrer');
     function reply(code, data) { res.writeHead(code, {'Content-Type':'application/json'});res.end(JSON.stringify(data)); }
     if (req.headers.host !== new URL(origin).host) return reply(403, {error:'Invalid host'});
-    if (req.method === 'GET' && req.url === '/') {
+    if (req.method === 'GET' && ['/','/report-studio.html'].includes(req.url)) {
       const source = fs.readFileSync(path.join(__dirname, 'report-studio.html'), 'utf8');
       res.writeHead(200, {'Content-Type':'text/html;charset=utf-8'});
       return res.end(source.replace("'use strict';", `'use strict';\nconst LOCAL_TOKEN=${JSON.stringify(token)};`));
     }
+    const assets = {'/manifest.webmanifest':['manifest.webmanifest','application/manifest+json'], '/icons/icon-192.png':['icons/icon-192.png','image/png'], '/icons/icon-512.png':['icons/icon-512.png','image/png']};
+    if(req.method==='GET' && Object.hasOwn(assets,req.url)){const [file,type]=assets[req.url];res.writeHead(200,{'Content-Type':type});return res.end(fs.readFileSync(path.join(__dirname,file)));}
     if (req.method !== 'POST' || req.url !== '/api') return reply(404, {error:'Not found'});
     const incomingToken = req.headers['x-local-token'];
     if (req.headers.origin !== origin || typeof incomingToken !== 'string' || Buffer.byteLength(incomingToken) !== Buffer.byteLength(token) || !timingSafeEqual(Buffer.from(incomingToken), Buffer.from(token))) return reply(403, {error:'Invalid origin or session'});
@@ -62,6 +64,9 @@ function createServer({upstreamFetch = fetch} = {}) {
 }
 if (require.main === module) {
   const server = createServer();
-  server.listen(0, '127.0.0.1', () => console.log(`Report Studio: http://127.0.0.1:${server.address().port}\nOpen this URL in your browser. Keep this terminal running. Ctrl+C stops the launcher.`));
+  const port=Number(process.env.REPORT_STUDIO_PORT || 8787);
+  if(!Number.isInteger(port)||port<1||port>65535)throw Error('REPORT_STUDIO_PORT must be between 1 and 65535.');
+  server.on('error',error=>{console.error(error.code==='EADDRINUSE'?'Report Studio port is in use. Stop the other launcher or set REPORT_STUDIO_PORT to another stable port.':'Report Studio could not start.');process.exitCode=1;});
+  server.listen(port, '127.0.0.1', () => console.log(`Report Studio: http://127.0.0.1:${server.address().port}\nOpen this URL in your browser. Keep this terminal running. Ctrl+C stops the launcher.`));
 }
 module.exports = {createServer};

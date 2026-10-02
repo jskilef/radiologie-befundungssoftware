@@ -11,6 +11,9 @@ const {createServer} = require('./local-server.cjs');
   const base = `http://127.0.0.1:${server.address().port}`;
   try {
     const html = await (await fetch(base)).text();
+    const manifestResponse=await fetch(base+'/manifest.webmanifest');assert.equal(manifestResponse.headers.get('content-type'),'application/manifest+json');const manifest=await manifestResponse.json();assert.equal(manifest.display,'standalone');assert.equal(manifest.start_url,'./report-studio.html');
+    const start=await (await fetch(base+'/report-studio.html')).text();assert(start.includes('const LOCAL_TOKEN='));
+    for(const icon of manifest.icons){const image=await fetch(base+'/'+icon.src.replace('./',''));assert.equal(image.status,200);assert.equal(image.headers.get('content-type'),'image/png');const bytes=Buffer.from(await image.arrayBuffer());assert.equal(bytes.readUInt32BE(16),Number(icon.sizes.split('x')[0]));}
     const token = html.match(/const LOCAL_TOKEN="([a-f0-9]+)"/)[1];
     const request = {url:'https://example.com/v1/chat/completions',headers:{Authorization:'Bearer mock','Content-Type':'application/json','X-Unwanted':'ignored'},body:{model:'mock',messages:[]}};
     const post = (origin=base, session=token, body=request) => fetch(base+'/api',{method:'POST',headers:{'Content-Type':'application/json',Origin:origin,'x-local-token':session},body:JSON.stringify(body)});
