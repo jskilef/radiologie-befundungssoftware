@@ -1,0 +1,74 @@
+name: Verify and release
+
+on:
+  push:
+    branches: [main]
+    paths: [VERSION]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - run: node verify-all.cjs
+      - name: Check release archive
+        shell: pwsh
+        run: ./build-release.ps1
+
+  release:
+    needs: verify
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Build checked release files
+        shell: pwsh
+        run: ./build-release.ps1
+      - name: Publish versioned release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(tr -d '\r\n' < VERSION)"
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          tag="v$version"
+          if gh release view "$tag" --json isDraft > release-state.json 2>/dev/null; then
+            target="$(gh api "repos/$GH_REPO/git/ref/tags/$tag" --jq '.object.sha')"
+            if [[ "$target" != "$GITHUB_SHA" ]]; then
+              echo 'Existing release points to another commit; refusing to replace it.' >&2
+              exit 1
+            fi
+            if [[ "$(jq -r '.isDraft' release-state.json)" == false ]]; then
+              echo "Release $tag is already published at this commit."
+              exit 0
+            fi
+          else
+            gh release create "$tag" --draft --target "$GITHUB_SHA" \
+              --title "Report Studio $tag" --notes-file release-notes.md
+          fi
+          gh release upload "$tag" "dist/report-studio-v$version.zip" \
+            dist/report-studio.html dist/SHA256SUMS.txt --clobber
+          gh release edit "$tag" --draft=false --latest \
+            --title "Report Studio $tag" --notes-file release-notes.md

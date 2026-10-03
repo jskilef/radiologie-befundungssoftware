@@ -3,3 +3,4 @@
 !report-studio-settings.json
 revised-report*.txt
 node_modules/
+dist/

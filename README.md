@@ -1,4 +1,10 @@
-# Report Studio v1.2.1
+# Report Studio v1.4.0
+
+Licensed under [MIT](LICENSE). Optional third-party runtimes and models retain
+their own terms; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and the
+[license source inventory](licenses/SOURCES.json). The standalone HTML includes
+the complete MIT license and a bilingual licenses panel. No model weights,
+runtime binaries, browser, or Node.js executable are bundled.
 
 Drag `report-studio.html` into a browser. Connection & templates starts closed; click Configure API & templates to edit it.
 
@@ -10,7 +16,7 @@ Choose English or Deutsch beside the settings buttons. Save settings file stores
 - Google Gemini: select Gemini and enter your Gemini key and model ID. Use https://generativelanguage.googleapis.com/v1beta/models as the endpoint. The app adds the model and :generateContent, uses x-goog-api-key authentication, and reads native Gemini responses.
 - Other OpenAI-compatible API: enter the full Chat Completions URL and model ID. Compatible gateways and local servers are supported. The key can be blank when authentication is unnecessary. Native proprietary formats such as Anthropic Messages and Azure-specific authentication need a compatible gateway; there are no native adapters for them.
 
-Changing provider applies its default endpoint; enter the matching key and model. Test connection makes a small billable generation request without sending your report.
+Each provider has its own connection profile (endpoint, key, and model). Switching providers restores that provider's profile; a new profile starts without a key. Other OpenAI-compatible API starts with an empty endpoint. Changing an endpoint to another origin (scheme, host, or port) clears the current key; enter the key for the new endpoint afterward. The processing destination is shown next to the report actions. Test connection makes a small billable generation request without sending your report.
 
 ## Fixing connection failures
 
@@ -28,13 +34,27 @@ The optional launcher serves the same app and forwards requests from Node, remov
 
 Review produces issue notes without changing the draft. Revise generates an editable report and notes. Both use the original text and selected template. Compare results with the original and resolve flagged issues before copying or downloading.
 
-Create or edit templates in the configuration panel, click Update template, then Save settings file. Update before switching templates to keep pending edits. The bundled JSON contains no key or model. Settings exports are password-encrypted; keep them private and do not commit credentials or patient text to GitHub. The bundled blank example is a legacy plaintext file with no credentials.
+Create or edit templates in the configuration panel. Pending edits stay in memory when switching templates or creating another one, including unfinished names. Save settings file validates and saves all templates; every template needs a name. Update template remains available to apply a name immediately. Loading a settings file asks before replacing unsaved settings. The bundled JSON contains no key or model. Settings exports are password-encrypted; keep them private and do not commit credentials or patient text to GitHub. The bundled blank example is a legacy plaintext file with no credentials.
+
+### Comparing and tracking results (v1.4.0)
+
+Changes in draft displays removed and added wording. Amber outlines draw attention to changed spans containing numbers, units, common English/German laterality, negation, or uncertainty terms. This is a word-based aid, not a clinical validator; inspect every change. For very large edits the comparison groups changed passages rather than computing a detailed word diff, without dropping text. The comparison updates when you edit the draft and always uses the original submitted for that revision, even if you subsequently change the original.
+
+Review notes and revised drafts separately retain their submitted report, template structure/style, task prompt, report and interface languages, provider, endpoint, model, and completion time in memory. Relevant input changes mark the corresponding result as outdated. Manual draft edits are identified, and notes from that revision are marked for rechecking. Failed actions retain the last successful notes/draft with a warning. A late model response never replaces a draft edited during generation.
+
+Copying or saving an outdated draft, or a draft whose latest revision failed, opens an accessible in-page confirmation with Keep editing as the initial focus. If the draft changes while confirmation is open, the export is cancelled. Clear workspace also removes result context and comparison content. Reports, comparison text and result context are never added to settings exports or automatically stored.
+
+Provider profiles are included inside the existing password-encrypted settings envelope. Legacy files without profiles still load; they initialize only their selected provider. Older app versions can read the selected connection fields but do not preserve the additional profiles when re-exporting.
 
 The interface is local; cloud processing is not. Report text and selected template go to your configured endpoint, directly or through the local launcher. Use de-identified text and an institution-approved service. AI results require clinical review. No browser storage or automatic saving is used; closing or reloading clears unsaved work.
 
 ## Verification
 
-Run `node verify.cjs`, `node verify-server.cjs`, `node verify-encryption.cjs`, and `node verify-diagnostics.cjs`. These use mocked providers to check API formats, separate actions, language/settings persistence, old settings, and launcher access controls. Live provider access is unverified without your credential.
+Run every verification suite with `node verify-all.cjs`. The release-integrity
+suite also checks version consistency, the standalone MIT text, included upstream
+license hashes, the package file list, and the blank settings example.
+
+Run `node verify.cjs`, `node verify-server.cjs`, `node verify-encryption.cjs`, `node verify-diagnostics.cjs`, `node verify-webllm.cjs`, `node verify-cpu.cjs`, `node verify-pwa.cjs`, and `node verify-workflow.cjs`. These use mocked providers to check API formats, separate actions, language/settings persistence, old settings, launcher access controls, workers, and installation behavior. The workflow suite adds event-aware checks for provider isolation, encrypted profiles, template preservation, exact/bounded diffs, outdated results, export decisions, and edits during generation. Live provider access is unverified without your credential.
 
 API references: [OpenAI](https://developers.openai.com/api/reference/overview), [Gemini](https://ai.google.dev/api/generate-content).
 
@@ -77,6 +97,27 @@ All inference runs in the browser worker. Runtime/model assets can be cached, bu
 Run node verify-cpu.cjs for mocked CPU-worker/runtime checks. Full model execution on a real browser/work PC remains unverified. Reference: https://huggingface.co/docs/transformers.js/v3.8.1/index
 
 CPU troubleshooting in Brave: version 1.2.2 uses a classic CPU worker for direct HTML opening. If loading still fails, the message identifies runtime import (jsDelivr), model initialization (Hugging Face/RAM), or generation. Try the localhost launcher. Version 1.2.4 distinguishes recognized download, memory, compatibility and WASM session failures. SmolLM2-135M is only a runtime test option and may fail to produce usable report output. Workplace restrictions can still block downloads. This change has automated worker tests; actual Brave inference has not been verified.
+
+## Release packaging
+
+Download the complete ZIP from [GitHub Releases](https://github.com/jskilef/radiologie-befundungssoftware/releases).
+It includes the HTML, launcher, installation assets, blank settings example,
+documentation, tests, and license files. The separate HTML download includes the
+project license but needs the ZIP's companion files for the complete launcher and
+browser-installation setup. `SHA256SUMS.txt` lists hashes for both downloads.
+
+To build from source, run `node verify-all.cjs`, then `pwsh -File build-release.ps1`
+(PowerShell 7). Output goes to the ignored `dist` folder. The script packages only
+the files in `release-files.json`, verifies each archived file against its source,
+and generates checksums. It never packages arbitrary workspace or settings files.
+
+The GitHub Actions workflow verifies pull requests. A push to `main` changing
+`VERSION`, or a manual run on `main`, verifies the project, builds the package, and
+publishes that version at the tested commit. Update `VERSION`, the displayed app
+version, README, changelog, and `release-notes.md` together. Existing published
+releases are not overwritten; a release at a different commit causes an error.
+The workflow uses the repository's built-in token with write permission only in
+the publishing job. No separate deployment credential is required.
 
 ## Save as a browser app (v1.3.0)
 

@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.4.0 — 2026-10-03
+
+- Show an exact text comparison with additions, deletions, and hints for changed numbers, units, laterality, negation, and uncertainty. Bound expensive comparisons for large edits and retain the original submitted for each revision.
+- Track review notes and revisions separately, flag outdated inputs and failed attempts, and require an in-page decision before exporting an outdated draft. Preserve manual edits made during generation or export confirmation.
+- Keep separate provider connection profiles in memory and encrypted settings; clear the current key when the endpoint origin changes. Show the processing destination beside report actions.
+- Preserve pending template edits when switching templates or creating another template. Ask before replacing unsaved settings on import.
+- Add English/German interface text and workflow regression checks. Preserve standalone HTML distribution and legacy settings import; no report autosaving is introduced.
+- License original project code under MIT. Include upstream runtime/model license evidence, third-party notices, source hashes, and a standalone HTML license panel.
+- Add a release file manifest, archive integrity checks, SHA-256 checksums, and a GitHub Actions workflow that tests before publishing a new version.
+
+Validation: all nine verification suites, including release/license integrity; synthetic browser checks of comparison rendering, template switching, provider fields, outdated-result warnings, and the English/German interface. Live inference and clinical fidelity remain unverified.
+
 ## 1.3.0 — 2026-10-02
 
 - Add standalone web-app manifest, PNG icons, HTTPS entry page and user-triggered Save as app button with German/English guidance.
