@@ -10,7 +10,24 @@ Drag `report-studio.html` into a browser. Connection & templates starts closed; 
 
 Choose English or Deutsch beside the settings buttons. Save settings file stores `uiLanguage`, `provider`, key, endpoint, model, report language and templates in one password-encrypted JSON file. Interface language and report language are independent. Older version 1 files still load with English as the default. Downloads do not silently overwrite the loaded file.
 
+## Appearance
+
+Use the Appearance selector in the header: System, Studio Light, Slate Dark,
+Midnight, Cobalt Light, or Cobalt Dark. System follows your operating system's
+light/dark preference, including changes while the app is open. Cobalt combines
+deep blue and orange accents, inspired by the [UK Essen website](https://www.uk-essen.de/)
+(observed colors `#00338d` and `#ec6500`); it is an independent theme without
+hospital logos or affiliation. Text and control colors are adapted for contrast.
+
+Only the theme ID is saved in browser storage (`report-studio-theme`). It is
+independent of encrypted settings files and stays on this browser/device.
+If storage is blocked, switching still works for the current tab. Reports,
+credentials, and templates are never added to browser storage. Theme changes
+preserve draft text, pending requests, and result context.
+
 ## Providers
+
+For future model/runtime choices, see the researched [local inference alternatives](LOCAL_MODEL_OPTIONS.md). These candidates are not integrated.
 
 - OpenAI: use your own key, an available model ID, and https://api.openai.com/v1/chat/completions.
 - Google Gemini: select Gemini and enter your Gemini key and model ID. Use https://generativelanguage.googleapis.com/v1beta/models as the endpoint. The app adds the model and :generateContent, uses x-goog-api-key authentication, and reads native Gemini responses.
@@ -46,7 +63,7 @@ Copying or saving an outdated draft, or a draft whose latest revision failed, op
 
 Provider profiles are included inside the existing password-encrypted settings envelope. Legacy files without profiles still load; they initialize only their selected provider. Older app versions can read the selected connection fields but do not preserve the additional profiles when re-exporting.
 
-The interface is local; cloud processing is not. Report text and selected template go to your configured endpoint, directly or through the local launcher. Use de-identified text and an institution-approved service. AI results require clinical review. No browser storage or automatic saving is used; closing or reloading clears unsaved work.
+The interface is local; cloud processing is not. Report text and selected template go to your configured endpoint, directly or through the local launcher. Use de-identified text and an institution-approved service. AI results require clinical review. Only the appearance preference is remembered in browser storage; closing or reloading clears unsaved work.
 
 ## Verification
 

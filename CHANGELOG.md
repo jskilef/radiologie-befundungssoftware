@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Add System, Studio Light, Slate Dark, Midnight, Cobalt Light, and Cobalt Dark appearance options with English/German labels. Apply the selected palette before first paint and follow live system appearance changes in System mode.
+- Adapt fields, dialogs, focus rings, links, review warnings, and text comparisons to each palette. Remember only the theme preference locally; preserve in-memory report state and keep appearance independent of settings imports/exports.
+
 ## 1.4.0 — 2026-10-03
 
 - Show an exact text comparison with additions, deletions, and hints for changed numbers, units, laterality, negation, and uncertainty. Bound expensive comparisons for large edits and retain the original submitted for each revision.

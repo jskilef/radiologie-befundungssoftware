@@ -2,21 +2,116 @@
 <html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#173e3c"><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icons/icon-192.png">
 <title>Report Studio · Radiology</title>
+<script id="theme-controller">
+// Only the appearance preference is persisted. Reports and credentials stay out of browser storage.
+(() => {
+  const key = 'report-studio-theme';
+  const colors = {light:'#173e3c',dark:'#17232b',midnight:'#101324','cobalt-light':'#00338d','cobalt-dark':'#14294b'};
+  const valid = value => value === 'system' || Object.hasOwn(colors, value);
+  let preference = 'system', media;
+  try { const saved = localStorage.getItem(key); if (valid(saved)) preference = saved; } catch {}
+  try { media = window.matchMedia('(prefers-color-scheme: dark)'); } catch {}
+  function apply() {
+    const resolved = preference === 'system' ? (media?.matches ? 'dark' : 'light') : preference;
+    document.documentElement.dataset.theme = resolved;
+    document.querySelector('meta[name="theme-color"]').content = colors[resolved];
+  }
+  apply(); // Apply before the page is painted to avoid a flash of the wrong theme.
+  const systemChanged = () => { if (preference === 'system') apply(); };
+  if (media?.addEventListener) media.addEventListener('change', systemChanged);
+  else if (media?.addListener) media.addListener(systemChanged);
+  document.addEventListener('DOMContentLoaded', () => {
+    const select = document.getElementById('themeSelect');
+    select.value = preference;
+    select.addEventListener('change', () => {
+      preference = valid(select.value) ? select.value : 'system';
+      apply();
+      try { localStorage.setItem(key, preference); } catch {} // Storage can be blocked for downloaded files.
+    });
+  });
+})();
+</script>
 <style>
-:root{font-family:Segoe UI,system-ui,sans-serif;color:#203535;background:#f3f5f2}*{box-sizing:border-box}body{margin:0}header{padding:26px 4vw;background:#173e3c;color:white;display:flex;justify-content:space-between;align-items:center}h1{margin:0;font-size:25px;letter-spacing:-.6px}header p{margin:7px 0 0;color:#c4d8d1;font-size:13px}main{max-width:1500px;margin:auto;padding:26px 4vw}button,.file{font:inherit;font-size:13px;border:1px solid #ccd7d1;border-radius:7px;background:white;color:#203535;padding:10px 14px;cursor:pointer;display:inline-block}button:hover,.file:hover{background:#edf3ef}button:disabled{opacity:.45;cursor:default}.primary{background:#1c6660;color:white;border-color:#1c6660}.primary:hover{background:#174e49}.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px}.card{background:white;border:1px solid #dce2dc;border-radius:12px;padding:22px}h2{font-size:17px;margin:0 0 16px}label{display:block;font-size:12px;font-weight:600;margin:13px 0 7px}input,select,textarea{font:inherit;color:inherit;background:#fff;border:1px solid #cdd8d1;border-radius:7px;padding:10px;width:100%}textarea{resize:vertical;line-height:1.6;font-size:14px}textarea.report{min-height:360px}input:focus,textarea:focus,select:focus{outline:2px solid #88bab2;outline-offset:1px}.muted,small{color:#64766e;font-size:12px;line-height:1.6}.notice{padding:12px 16px;border-radius:8px;background:#e7eee7;font-size:12px;line-height:1.6;margin-top:16px}#status{min-height:24px;font-size:13px;margin:16px 0;color:#275e54}#status.error{color:#ac3434}details{margin-top:22px}summary{cursor:pointer;font-weight:600;font-size:14px}.settings{display:grid;grid-template-columns:1fr 1fr;gap:25px;padding-top:16px}.issue{border-left:3px solid #bf9249;background:#faf7f0;padding:10px 14px;margin:10px 0;font-size:13px;white-space:pre-wrap}.issue strong{display:block;margin-bottom:5px}#issues{margin-top:16px}#raw{white-space:pre-wrap}.pill{color:#81cbb5;font-size:12px}.foot{margin:24px 0;font-size:12px;color:#64766e}@media(max-width:800px){.grid,.settings{grid-template-columns:1fr}header{align-items:start;gap:14px}textarea.report{min-height:260px}}
+:root{
+  color-scheme:light;
+  --page:#f3f5f2;--surface:#ffffff;--field:#ffffff;--text:#203535;--muted:#586d63;
+  --border:#dce2dc;--control-border:#889b90;--hover:#edf3ef;
+  --header:#173e3c;--header-text:#ffffff;--header-muted:#c4d8d1;--header-accent:#81cbb5;
+  --primary:#1c6660;--primary-hover:#174e49;--on-primary:#ffffff;--focus:#2d8276;--link:#17635c;
+  --notice:#e7eee7;--status:#275e54;--error:#ac3434;
+  --warning-bg:#fff3de;--warning-text:#874200;--warning-border:#ac710d;--issue-bg:#faf7f0;
+  --added-bg:#d9f0e2;--added-text:#154f35;--removed-bg:#fbe0df;--removed-text:#7a2424;
+  --backdrop:#08131bb3;
+  font-family:Segoe UI,system-ui,sans-serif;color:var(--text);background:var(--page)
+}
+:root[data-theme="dark"],:root[data-theme="midnight"],:root[data-theme="cobalt-dark"]{
+  color-scheme:dark;
+  --page:#11191f;--surface:#1a252e;--field:#131e26;--text:#e5edf2;--muted:#acbdc9;
+  --border:#354751;--control-border:#6b818e;--hover:#293943;
+  --header:#17232b;--header-muted:#b6cbd3;--header-accent:#8cdbc7;
+  --primary:#8cdbc7;--primary-hover:#adebdb;--on-primary:#102820;--focus:#8cdbc7;--link:#9ee2d1;
+  --notice:#22353a;--status:#9ee2c4;--error:#ffb5b5;
+  --warning-bg:#3c2d18;--warning-text:#ffdc9c;--warning-border:#e6ad4b;--issue-bg:#30291e;
+  --added-bg:#1e4436;--added-text:#bdf1cd;--removed-bg:#4d2930;--removed-text:#ffd0d4
+}
+:root[data-theme="midnight"]{
+  --page:#0a0d16;--surface:#151a29;--field:#0e1320;--text:#e9ebfa;--muted:#b2b8cf;
+  --border:#323b57;--control-border:#737f9f;--hover:#242d44;
+  --header:#101324;--header-muted:#c0c4df;--header-accent:#c1b7ff;
+  --primary:#c1b7ff;--primary-hover:#d9d2ff;--on-primary:#211a44;--focus:#c1b7ff;--link:#c9c1ff;
+  --notice:#20273d;--status:#b6dfcf
+}
+/* Inspired by the public UK Essen website: blue #00338d and orange #ec6500. */
+:root[data-theme="cobalt-light"]{
+  --page:#f1f5fb;--text:#1a2d46;--muted:#51657c;--border:#d5e0ed;--control-border:#8094ae;--hover:#e8eff9;
+  --header:#00338d;--header-muted:#dbe7ff;--header-accent:#ffbf8a;
+  --primary:#00338d;--primary-hover:#00266b;--focus:#b04b00;--link:#00338d;
+  --notice:#e4edf9;--status:#244d80
+}
+:root[data-theme="cobalt-dark"]{
+  --page:#0e192b;--surface:#17263d;--field:#102037;--text:#e7effc;--muted:#b1c1d9;
+  --border:#344d6d;--control-border:#718eb3;--hover:#263d5c;
+  --header:#14294b;--header-muted:#c6d8f3;--header-accent:#ffb77e;
+  --primary:#9ec5ff;--primary-hover:#c3dcff;--on-primary:#10284b;--focus:#ffb77e;--link:#aecfff;
+  --notice:#203651;--status:#b3d7f8
+}
+*{box-sizing:border-box}body{margin:0}
+header{padding:24px 4vw;background:var(--header);color:var(--header-text);display:flex;justify-content:space-between;align-items:center;gap:24px;border-bottom:3px solid var(--header-accent)}
+:root[data-theme^="cobalt-"] header{border-bottom-color:#ec6500}
+h1{margin:0;font-size:25px;letter-spacing:-.6px}header p{margin:7px 0 0;color:var(--header-muted);font-size:13px}
+.header-tools{display:flex;align-items:center;gap:22px;flex-wrap:wrap}.appearance{display:grid;gap:5px}.appearance label{margin:0;color:var(--header-muted)}
+#themeSelect{width:230px;max-width:100%;font-size:13px}.pill{color:var(--header-accent);font-size:12px;letter-spacing:.05em}
+main{max-width:1500px;margin:auto;padding:26px 4vw}
+button,.file{font:inherit;font-size:13px;border:1px solid var(--control-border);border-radius:7px;background:var(--surface);color:var(--text);padding:10px 14px;cursor:pointer;display:inline-block}
+button:hover,.file:hover{background:var(--hover)}button:disabled{opacity:.45;cursor:default}
+.primary{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}.primary:hover{background:var(--primary-hover)}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;min-width:0}h2{font-size:17px;margin:0 0 16px}
+label{display:block;font-size:12px;font-weight:600;margin:13px 0 7px}
+input,select,textarea{font:inherit;color:var(--text);background:var(--field);border:1px solid var(--control-border);border-radius:7px;padding:10px;width:100%}
+textarea{resize:vertical;line-height:1.6;font-size:14px}textarea.report{min-height:360px}::placeholder{color:var(--muted);opacity:1}
+input:focus,textarea:focus,select:focus,:is(button,a,summary):focus-visible,.file:focus-within{outline:2px solid var(--focus);outline-offset:3px}
+header select:focus{outline-color:var(--header-accent)}a{color:var(--link);text-underline-offset:3px}
+.muted,small{color:var(--muted);font-size:12px;line-height:1.6}.notice{padding:12px 16px;border-radius:8px;background:var(--notice);font-size:12px;line-height:1.6;margin-top:16px}
+#status{min-height:24px;font-size:13px;margin:16px 0;color:var(--status)}#status.error,#passwordError{color:var(--error)}
+details{margin-top:22px}summary{cursor:pointer;font-weight:600;font-size:14px}.settings{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:25px;padding-top:16px}
+.issue{border-left:3px solid var(--warning-border);background:var(--issue-bg);padding:10px 14px;margin:10px 0;font-size:13px;white-space:pre-wrap}.issue strong{display:block;margin-bottom:5px}
+#issues{margin-top:16px}#raw{white-space:pre-wrap;overflow-wrap:anywhere}.foot{margin:24px 0;font-size:12px;color:var(--muted)}
+@media(max-width:800px){.grid,.settings{grid-template-columns:1fr}header{align-items:start;gap:18px;flex-wrap:wrap}.header-tools{width:100%;justify-content:space-between;gap:12px}textarea.report{min-height:260px}}
+@media(max-width:420px){.header-tools{align-items:start;flex-direction:column}.appearance,#themeSelect{width:100%}}
 
-.result-warning{color:#874200;background:#fff3de;border-left:3px solid #bd7600;padding:10px 12px;border-radius:4px}
-.destination{padding:10px 12px;background:#edf3ef;border-radius:6px;overflow-wrap:anywhere}
+.result-warning{color:var(--warning-text);background:var(--warning-bg);border-left:3px solid var(--warning-border);padding:10px 12px;border-radius:4px}
+.destination{padding:10px 12px;background:var(--hover);border-radius:6px;overflow-wrap:anywhere}
 .diff-body{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.9;font-size:14px;margin-top:14px}
-.diff-body ins,.diff-added{background:#d9f0e2;color:#154f35;text-decoration:underline}
-.diff-body del,.diff-removed{background:#fbe0df;color:#7a2424;text-decoration:line-through}
+.diff-body ins,.diff-added{background:var(--added-bg);color:var(--added-text);text-decoration:underline}
+.diff-body del,.diff-removed{background:var(--removed-bg);color:var(--removed-text);text-decoration:line-through}
 .diff-body ins,.diff-body del{margin:0 2px;padding:1px 2px}
-.diff-body .sensitive-change{outline:2px solid #ac710d;outline-offset:1px;border-radius:2px}
+.diff-body .sensitive-change{outline:2px solid var(--warning-border);outline-offset:1px;border-radius:2px}
 .diff-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:12px}
 #diffPanel{margin-top:20px}#diffPanel summary{font-size:17px}#notesContext:empty{display:none}
-dialog{border:1px solid #ccd7d1;border-radius:12px;max-width:460px;width:90%;color:#203535}dialog::backdrop{background:#173e3c66}
+dialog{border:1px solid var(--control-border);border-radius:12px;max-width:460px;width:90%;color:var(--text);background:var(--surface)}dialog::backdrop{background:var(--backdrop)}
 </style>
-<header><div><h1>Report Studio</h1><p>A quieter workspace for clearer radiology reports.</p></div><span class="pill">LOCAL WORKSPACE</span></header>
+<header><div><h1>Report Studio</h1><p>A quieter workspace for clearer radiology reports.</p></div><div class="header-tools"><span class="pill">LOCAL WORKSPACE</span><div class="appearance"><label for="themeSelect">Appearance</label><select id="themeSelect"><option value="system">System</option><option value="light">Studio Light</option><option value="dark">Slate Dark</option><option value="midnight">Midnight</option><option value="cobalt-light">Cobalt Light</option><option value="cobalt-dark">Cobalt Dark</option></select></div></div></header>
 <main>
 <div class="bar"><button id="installApp">Save as app</button><button id="configure" aria-controls="settings" aria-expanded="false">Configure API &amp; templates</button><label class="file" style="margin:0">Load settings<input id="load" type="file" accept=".json,application/json" hidden></label><button id="export">Save settings file</button><label for="uiLanguage" style="margin:0">Interface language</label><select id="uiLanguage" style="width:auto"><option value="en">English</option><option value="de">Deutsch</option></select><span id="saved" class="muted">Settings remain in memory until saved.</span></div>
 <p id="installHelp" class="muted" hidden></p>
@@ -51,9 +146,9 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.</pre><p><a href="https://github.com/jskilef/radiologie-befundungssoftware/blob/v1.4.0/THIRD_PARTY_NOTICES.md" target="_blank" rel="noopener noreferrer">Third-party license inventory and sources</a></p><p class="muted">WebLLM and Transformers.js: Apache-2.0. ONNX Runtime: MIT plus upstream component notices. Original Qwen3 weights and SmolLM2: Apache-2.0; converted-model license evidence is documented separately. No runtime binaries or model weights are bundled.</p></section></details>
-<p class="foot">No analytics or automatic report saving. Browser-local mode downloads external runtime/model assets and may cache model weights. Closing this tab clears the workspace. Loading settings replaces the current connection and templates.</p>
+<p class="foot"><span>Only your appearance preference is remembered in this browser.</span> <span>No analytics or automatic report saving. Browser-local mode downloads external runtime/model assets and may cache model weights. Closing this tab clears the workspace. Loading settings replaces the current connection and templates.</span></p>
 </main>
-<dialog id="passwordDialog" style="border:1px solid #ccd7d1;border-radius:12px;max-width:440px;width:90%"><form id="passwordForm"><h2 id="passwordTitle">Unlock settings</h2><p id="passwordHelp" class="muted"></p><label for="settingsPassword">Password</label><input id="settingsPassword" type="password" autocomplete="off" required><div id="confirmPasswordRow" hidden><label for="settingsPasswordConfirm">Confirm password</label><input id="settingsPasswordConfirm" type="password" autocomplete="off"></div><p id="passwordError" role="alert" style="color:#ac3434"></p><div class="bar"><button id="passwordSubmit" type="submit" class="primary">Continue</button><button id="passwordCancel" type="button">Cancel</button></div></form></dialog>
+<dialog id="passwordDialog" style="max-width:440px"><form id="passwordForm"><h2 id="passwordTitle">Unlock settings</h2><p id="passwordHelp" class="muted"></p><label for="settingsPassword">Password</label><input id="settingsPassword" type="password" autocomplete="off" required><div id="confirmPasswordRow" hidden><label for="settingsPasswordConfirm">Confirm password</label><input id="settingsPasswordConfirm" type="password" autocomplete="off"></div><p id="passwordError" role="alert"></p><div class="bar"><button id="passwordSubmit" type="submit" class="primary">Continue</button><button id="passwordCancel" type="button">Cancel</button></div></form></dialog>
 
 <dialog id="staleExportDialog" aria-labelledby="staleExportTitle" aria-describedby="staleExportHelp"><h2 id="staleExportTitle">Export previous draft?</h2><p id="staleExportHelp">The inputs changed or the latest revision failed. Compare this draft with the current original before using it.</p><div class="bar"><button id="staleExportCancel" type="button">Keep editing</button><button id="staleExportConfirm" type="button">Export previous draft</button></div></dialog>
 <script>
@@ -74,6 +169,8 @@ Object.assign(DE,{"The CPU model did not return valid structured output. No resu
 Object.assign(DE,{"CPU model initialization ran out of memory. Close other tabs and apps, then retry; the download size is smaller than the RAM needed.":"CPU-Modellinitialisierung hat den verfügbaren Speicher überschritten. Andere Tabs und Programme schließen und erneut versuchen; der RAM-Bedarf ist größer als die Downloadgröße.","The CPU runtime does not support this model or an operator in its model file. This is a compatibility failure, not a report error.":"Die CPU-Laufzeit unterstützt dieses Modell oder einen Operator der Modelldatei nicht. Kompatibilitätsfehler, kein Fehler im Befund.","CPU model files could not be downloaded. Check Hugging Face access and large-file download restrictions. The localhost launcher cannot bypass workplace network policy.":"CPU-Modelldateien konnten nicht heruntergeladen werden. Zugriff auf Hugging Face und Beschränkungen großer Downloads prüfen. Der lokale Starter umgeht keine Netzwerkrichtlinien am Arbeitsplatz.","The CPU model could not create a WebAssembly session. Try the localhost launcher; the model may be incompatible with this browser runtime.":"Für das CPU-Modell konnte keine WebAssembly-Sitzung erstellt werden. Den lokalen Starter versuchen; das Modell ist möglicherweise mit dieser Browser-Laufzeit inkompatibel.","CPU model download or initialization failed. The underlying error was not recognized. Try the localhost launcher; CPU compatibility is not verified.":"Download oder Initialisierung des CPU-Modells fehlgeschlagen. Der zugrunde liegende Fehler wurde nicht erkannt. Den lokalen Starter versuchen; CPU-Kompatibilität ist nicht bestätigt."});
 Object.assign(DE,{"Save as app":"Als App speichern","To save Report Studio as an app, open it over HTTPS or through the localhost launcher, then use your browser’s Install app menu. A downloaded HTML file cannot use this installation flow. The localhost launcher must remain running when using its saved app.":"Zum Speichern als App Report Studio über HTTPS oder den lokalen Starter öffnen und im Browser „App installieren“ wählen. Eine heruntergeladene HTML-Datei unterstützt diesen Installationsablauf nicht. Für die gespeicherte localhost-App muss der lokale Starter weiterlaufen."});
 Object.assign(DE, {
+  'Appearance':'Darstellung', 'System':'System', 'Studio Light':'Studio Hell', 'Slate Dark':'Schiefer Dunkel', 'Midnight':'Mitternacht', 'Cobalt Light':'Kobalt Hell', 'Cobalt Dark':'Kobalt Dunkel',
+  'Only your appearance preference is remembered in this browser.':'Nur die Darstellung wird in diesem Browser gespeichert.',
   'Changes in draft':'Änderungen im Entwurf',
   'Licenses and third-party notices':'Lizenzen und Hinweise zu Drittanbietern',
   'Project code is MIT-licensed. Optional runtimes and model assets retain their own licenses and are downloaded separately.':'Der Projektcode steht unter der MIT-Lizenz. Optionale Laufzeiten und Modelldateien behalten ihre eigenen Lizenzen und werden separat heruntergeladen.',
