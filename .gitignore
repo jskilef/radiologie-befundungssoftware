@@ -4,3 +4,7 @@
 revised-report*.txt
 node_modules/
 dist/
+playwright-report/
+test-results/
+.playwright-browsers/
+.pnpm-store/

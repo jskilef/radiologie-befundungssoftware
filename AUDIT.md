@@ -22,8 +22,18 @@ Scope: tracked application, loopback launcher, configuration example, documentat
 ## Remaining limits
 
 - Live API credentials, quota, regional permissions, and provider availability were not verified. Code 1300 does not identify the exact exhausted limit.
-- Verification uses mocked DOM/provider responses, not a full browser visual or accessibility audit.
+- The original audit used mocked DOM/provider responses. The October follow-up below adds real browser workflows; this is still not a comprehensive visual or accessibility audit.
 - Clinical fidelity is not established by software checks. Model output and configurable prompts need evaluation on representative reports before clinical deployment.
 - This audit does not certify DSGVO, professional confidentiality, medical-device, or AI Act compliance. Those depend on intended purpose, contracts, processing configuration, institutional controls, and clinical validation.
 - Encrypted exports protect saved settings; unlocked keys remain in browser memory while the app is open. Legacy plaintext settings still require private handling.
 - The launcher is for trusted local use and binds to loopback. Approved endpoint selection remains the user's responsibility; it is not a multiuser production backend.
+
+## Follow-up — 4 October 2026
+
+- Added ten-suite verification and archive checks on ordinary branch pushes, pull requests, and manual runs. Release publication additionally requires a main-branch version change or an explicit manual release request, and successful Chromium/Firefox jobs.
+- Added 24 repeatable scenarios per browser for report actions and comparisons, edits during generation, cancellation, outdated exports and dialog focus, provider/template switching, encrypted settings download/import, themes, German labels, and a narrow viewport.
+- CPU cases use the production worker with a synthetic inference module in place of the downloaded runtime. Both CPU model selections are tested against prose, invalid schemas, truncated JSON, and null responses. Invalid output retains previous drafts/notes and displays a specific error; cancellation can recover through a fresh worker.
+- Test data is synthetic. Unexpected external requests are blocked, and no provider credentials or model weights are required. CI retains browser reports and failure traces for seven days.
+- The user reported frequent structured-output failures with small CPU models. These tests cover the application's response to that failure; they do not measure or improve actual inference quality. Live model reliability and clinical fidelity remain unverified by this suite.
+
+Local validation: all ten verification suites, all 48 browser tests (24 each in Chromium and Firefox), and the 45-file archive integrity check passed. Firefox required execution outside the local process sandbox.

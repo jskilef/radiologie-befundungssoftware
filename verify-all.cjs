@@ -2,7 +2,7 @@
 const {spawnSync} = require('node:child_process');
 const checks = ['verify.cjs', 'verify-server.cjs', 'verify-encryption.cjs',
   'verify-diagnostics.cjs', 'verify-webllm.cjs', 'verify-cpu.cjs',
-  'verify-pwa.cjs', 'verify-workflow.cjs', 'verify-release.cjs'];
+  'verify-pwa.cjs', 'verify-workflow.cjs', 'verify-release.cjs', 'verify-ci.cjs'];
 for (const file of checks) {
   const result = spawnSync(process.execPath, [file], {cwd: __dirname, stdio: 'inherit'});
   if (result.error) throw result.error;

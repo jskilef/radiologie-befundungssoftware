@@ -172,6 +172,7 @@ Object.assign(DE, {
   'Appearance':'Darstellung', 'System':'System', 'Studio Light':'Studio Hell', 'Slate Dark':'Schiefer Dunkel', 'Midnight':'Mitternacht', 'Cobalt Light':'Kobalt Hell', 'Cobalt Dark':'Kobalt Dunkel',
   'Only your appearance preference is remembered in this browser.':'Nur die Darstellung wird in diesem Browser gespeichert.',
   'Changes in draft':'Änderungen im Entwurf',
+  'The CPU model did not return valid structured output. No result was accepted. Inspect the raw response below or choose another model.':'Das CPU-Modell hat kein gültiges strukturiertes Ergebnis geliefert. Kein Ergebnis wurde übernommen. Die Rohantwort unten prüfen oder ein anderes Modell wählen.',
   'Licenses and third-party notices':'Lizenzen und Hinweise zu Drittanbietern',
   'Project code is MIT-licensed. Optional runtimes and model assets retain their own licenses and are downloaded separately.':'Der Projektcode steht unter der MIT-Lizenz. Optionale Laufzeiten und Modelldateien behalten ihre eigenen Lizenzen und werden separat heruntergeladen.',
   'Third-party license inventory and sources':'Lizenzübersicht und Quellen der Drittanbieter',
@@ -480,7 +481,7 @@ async function runAction(mode){
     let result;
     try{result=parseReview(text,mode);}catch{
       $('raw').textContent=text;$('rawBox').hidden=false;
-      throw Error('Unexpected response format. Inspect the raw response below and try again.');
+      throw Error(provider==='wasm'?'The CPU model did not return valid structured output. No result was accepted. Inspect the raw response below or choose another model.':'Unexpected response format. Inspect the raw response below and try again.');
     }
     if(mode==='revise'&&$('revision').value!==draftAtStart)throw Error('Draft changed during generation. Your edits were kept; run Revise again.');
     $('rawBox').hidden=true;$('raw').textContent='';

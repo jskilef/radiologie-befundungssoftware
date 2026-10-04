@@ -2,10 +2,14 @@ name: Verify and release
 
 on:
   push:
-    branches: [main]
-    paths: [VERSION]
+    branches: ['**']
   pull_request:
   workflow_dispatch:
+    inputs:
+      publish_release:
+        description: Publish the current VERSION after all checks pass (main only)
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -18,10 +22,13 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    outputs:
+      publish: ${{ steps.release_request.outputs.publish }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '22'
@@ -29,10 +36,45 @@ jobs:
       - name: Check release archive
         shell: pwsh
         run: ./build-release.ps1
+      - name: Determine whether a release was requested
+        id: release_request
+        run: node scripts/release-requested.cjs
+
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Install pinned test dependencies
+        run: |
+          npm install --global pnpm@11.19.0 --ignore-scripts
+          pnpm install --frozen-lockfile --ignore-scripts
+      - name: Install test browser
+        run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
+      - name: Exercise browser workflows with synthetic fixtures
+        run: pnpm test:browser --project=${{ matrix.browser }}
+      - name: Save browser report and failure traces
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: browser-results-${{ matrix.browser }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
 
   release:
-    needs: verify
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: [verify, browser]
+    if: needs.verify.outputs.publish == 'true' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

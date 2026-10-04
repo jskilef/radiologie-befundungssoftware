@@ -1,0 +1,14 @@
+{
+  "name": "report-studio",
+  "private": true,
+  "license": "MIT",
+  "packageManager": "pnpm@11.19.0",
+  "scripts": {
+    "test": "node verify-all.cjs",
+    "test:browser": "playwright test",
+    "test:all": "node verify-all.cjs && playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  }
+}

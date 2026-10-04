@@ -1,0 +1,20 @@
+'use strict';
+const assert = require('node:assert/strict');
+const {releaseRequested} = require('./scripts/release-requested.cjs');
+const event = {before:'a'.repeat(40), after:'b'.repeat(40)};
+const noDiff = () => { throw Error('This event must not request a release or inspect a diff'); };
+assert.equal(releaseRequested('pull_request', 'refs/heads/main', event, noDiff), false);
+assert.equal(releaseRequested('push', 'refs/heads/feature', event, noDiff), false);
+assert.equal(releaseRequested('push', 'refs/tags/v1.5.0', event, noDiff), false);
+assert.equal(releaseRequested('push', 'refs/heads/main', {...event, deleted:true}, noDiff), false);
+assert.equal(releaseRequested('push', 'refs/heads/main', {...event, before:'0'.repeat(40)}, noDiff), false);
+assert.equal(releaseRequested('workflow_dispatch', 'refs/heads/main', {}, noDiff), false);
+assert.equal(releaseRequested('workflow_dispatch', 'refs/heads/main', {inputs:{publish_release:'false'}}, noDiff), false);
+assert.equal(releaseRequested('workflow_dispatch', 'refs/heads/main', {inputs:{publish_release:true}}, noDiff), true);
+assert.equal(releaseRequested('workflow_dispatch', 'refs/heads/main', {inputs:{publish_release:'true'}}, noDiff), true);
+assert.equal(releaseRequested('push', 'refs/heads/main', event, () => false), false);
+assert.equal(releaseRequested('push', 'refs/heads/main', event, (before, after) => {
+  assert.equal(before, event.before); assert.equal(after, event.after); return true;
+}), true);
+assert.throws(() => releaseRequested('push', 'refs/heads/main', {...event, after:'bad'}, noDiff));
+console.log('PASS: release gating for ordinary pushes, version changes, manual runs, branches, tags, PRs and branch creation/deletion.');

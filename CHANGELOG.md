@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Run verification, release archive checks, and repeatable Chromium/Firefox browser tests on ordinary branch pushes, pull requests, and manual runs. Require passing checks before publishing; only a main-branch version change or explicit manual release request publishes a release.
+- Cover report editing, cancellation, outdated exports, encrypted settings, provider/template switching, and themes in the real page. Exercise malformed CPU responses through the app's real worker with synthetic inference fixtures; preserve previous drafts and explain structured-output failures in English and German.
 - Add System, Studio Light, Slate Dark, Midnight, Cobalt Light, and Cobalt Dark appearance options with English/German labels. Apply the selected palette before first paint and follow live system appearance changes in System mode.
 - Adapt fields, dialogs, focus rings, links, review warnings, and text comparisons to each palette. Remember only the theme preference locally; preserve in-memory report state and keep appearance independent of settings imports/exports.
 

@@ -38,6 +38,15 @@ The app pins the top-level JavaScript runtime versions. It does not pin every
 model revision or every CDN-resolved transitive asset. The model revisions below
 are the revisions inspected for this notice, not new runtime download pins.
 
+## Development test tools
+
+The optional browser test setup pins `@playwright/test`, `playwright`, and
+`playwright-core` to 1.63.0 through `pnpm-lock.yaml`. These Microsoft projects use
+[Apache-2.0](https://github.com/microsoft/playwright/blob/v1.63.0/LICENSE).
+They are development dependencies installed separately; their implementation
+and downloaded test browsers are not included in the release ZIP or standalone
+HTML. Installed packages retain their upstream license and notice files.
+
 ## Optional model assets
 
 | Model selected in Report Studio | License evidence | Inspected conversion / model revision |
