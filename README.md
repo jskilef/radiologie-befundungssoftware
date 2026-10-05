@@ -1,4 +1,4 @@
-# Report Studio v1.4.0
+# Report Studio v1.5.0
 
 A browser workspace for reviewing and editing radiology report drafts. Use your own API provider or run a supported model on your device, with English and German interfaces, reusable templates, and an editable comparison of the original and revised text.
 
@@ -148,3 +148,11 @@ For static hosting, deploy `index.html`, `report-studio.html`, `manifest.webmani
 Project code is licensed under [MIT](LICENSE). The standalone HTML includes the complete project license and a bilingual licenses panel.
 
 Optional runtimes and model assets retain their own licenses. See [third-party notices](THIRD_PARTY_NOTICES.md) and the [license source inventory](licenses/SOURCES.json) for attribution and recorded evidence. Model weights, runtime binaries, browsers, and Node.js are downloaded or installed separately.
+
+## Local model folders and MedGemma (v1.5.0)
+
+Select a browser CPU or WebGPU model under Connection & templates, then use **Load model folder** to select its complete downloaded directory. The directory picker preserves subfolders; an isolated weight file or a GGUF/safetensors file is not compatible with these runtimes. Model files are used in the browser worker and are not uploaded or embedded in encrypted settings. Select the folder again after reopening the app. **Use online downloads** clears the selection. Switching to another model requires its matching folder or explicitly selecting online downloads.
+
+MedGemma 4B is available in both menus as experimental text-only ONNX inference, using Transformers.js 4.3.0 (CPU/WASM or WebGPU), not WebLLM. Other GPU models retain WebLLM. This is a third-party conversion of Google MedGemma 4B, not MedGemma 1.5. Full MedGemma inference and German radiology quality have not been verified in Report Studio. Multi-gigabyte weights require additional working memory; CPU use may be too slow or fail on restricted work PCs.
+
+Local bundles disable model download fallback, but still require jsDelivr access for JavaScript/ONNX runtime assets. This feature does not promise fully offline operation. Download real model files on an allowed network, preserve the directory layout, and transfer the folder using your approved method. Git clone without LFS can leave pointer files instead of weights. See [model links and required files](MODEL_DOWNLOADS.md).

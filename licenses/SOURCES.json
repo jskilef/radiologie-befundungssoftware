@@ -1,5 +1,5 @@
 {
-  "reviewedOn": "2026-10-03",
+  "reviewedOn": "2026-10-05",
   "scope": "License document provenance; no runtime binaries or model weights are bundled.",
   "files": [
     {
@@ -45,6 +45,11 @@
     {
       "file": "licenses/Apache-2.0.txt",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "file": "licenses/transformers-js-4.3.0-LICENSE.txt",
+      "url": "https://raw.githubusercontent.com/huggingface/transformers.js/4.3.0/LICENSE",
       "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
     }
   ]

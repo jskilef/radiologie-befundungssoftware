@@ -1,6 +1,6 @@
 # Third-party licenses and attribution
 
-Reviewed for Report Studio 1.4.0 on 3 October 2026.
+Reviewed for Report Studio 1.5.0 on 5 October 2026.
 
 ## What the release contains
 
@@ -83,3 +83,7 @@ file. Model weights are not redistributed in this release.
 
 The [source inventory](licenses/SOURCES.json) records the URLs and SHA-256 hashes
 of the included upstream license documents. No upstream license text is modified.
+
+## MedGemma and additional runtime
+
+Experimental MedGemma text-only inference uses [Transformers.js 4.3.0](https://github.com/huggingface/transformers.js/tree/4.3.0), Apache-2.0; [upstream license](licenses/transformers-js-4.3.0-LICENSE.txt). MedGemma uses the third-party [geeek/medgemma-4b-it-ONNX](https://huggingface.co/geeek/medgemma-4b-it-ONNX) conversion of [google/medgemma-4b-it](https://huggingface.co/google/medgemma-4b-it), governed by the [Health AI Developer Foundations terms](https://developers.google.com/health-ai-developer-foundations/terms). It is not licensed under Report Studio's MIT license. No weights are redistributed in this release. Users must review and comply with upstream terms before downloading or using them. Local model folders and compiled libraries remain separately supplied works.

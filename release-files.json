@@ -43,5 +43,8 @@
   "licenses/Qwen3-0.6B-LICENSE.txt",
   "licenses/Qwen3-1.7B-LICENSE.txt",
   "licenses/Qwen3-4B-LICENSE.txt",
-  "licenses/Apache-2.0.txt"
+  "licenses/Apache-2.0.txt",
+  "MODEL_DOWNLOADS.md",
+  "verify-model-files.cjs",
+  "licenses/transformers-js-4.3.0-LICENSE.txt"
 ]

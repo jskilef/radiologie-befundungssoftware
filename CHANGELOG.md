@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.0 — 2026-10-05
+
+- Add experimental MedGemma 4B text-only ONNX inference in both CPU and WebGPU menus using Transformers.js 4.3.0; retain existing runtimes for other models.
+- Load matching local model folders without Hugging Face model download fallback. Validate required files and keep file handles out of saved settings. Runtime CDN access is still needed.
+- Add per-model file links, compiled WebLLM library links, and model download documentation. Full MedGemma browser inference remains unverified.
+
 ## Unreleased
 
 - Run verification, release archive checks, and repeatable Chromium/Firefox browser tests on ordinary branch pushes, pull requests, and manual runs. Require passing checks before publishing; only a main-branch version change or explicit manual release request publishes a release.
